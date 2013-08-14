@@ -7,7 +7,28 @@ import "encoding/csv"
 // import "bufio"
 import "bytes"
 
+/*
+
+To create a empty dictinoary:
+
+	dict := pofile.NewDictionary()
+	dict := pofile.Dictionary{}
+
+To add message:
+
+	dict.AddMessage(msgId, msgStr)
+
+To remove message:
+
+	dict.RemoveMessage(msgId)
+
+*/
+
 type Dictionary map[string]string
+
+func NewDictionary() *Dictionary {
+	return new(Dictionary)
+}
 
 func (self Dictionary) AddMessage(msgId string, msgStr string) {
 	self[msgId] = msgStr
