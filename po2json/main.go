@@ -21,19 +21,22 @@ func FileExists(filename string) bool {
 	return true
 }
 
+func Die(args ...interface{}) {
+	fmt.Println(args...)
+	os.Exit(1)
+}
+
 func ConvertPoToJson(poFile, jsonFile string, c chan bool) bool {
 	dict, err := pofile.ParseFile(poFile)
 	if err != nil {
-		fmt.Println("PO File Parsing Error", err)
-		os.Exit(1)
+		Die(err)
 	}
 
 	fmt.Println("Writing JSON", jsonFile)
 	jsonOutput := dict.JSONString()
 	err = ioutil.WriteFile(jsonFile, []byte(jsonOutput), 0666)
 	if err != nil {
-		fmt.Println("Can not write json file", jsonFile)
-		os.Exit(1)
+		Die("Can not write json file", jsonFile)
 	}
 	c <- true
 	return true
@@ -58,8 +61,7 @@ func main() {
 
 		langs, err := poutil.GetLocaleLanguages(localeDir)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			Die(err)
 		}
 
 		os.MkdirAll(jsonDir, 0777)
@@ -83,14 +85,14 @@ func main() {
 		fmt.Println("Done")
 	} else {
 		filename := os.Args[1]
-		if _, err := os.Stat(filename); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+
+		if !FileExists(filename) {
+			Die(filename, "does not exist.")
 		}
+
 		dict, err := pofile.ParseFile(filename)
 		if err != nil {
-			fmt.Println("PO File Parsing Error", err)
-			os.Exit(1)
+			Die("PO File Parsing Error", err)
 		}
 		fmt.Println(dict)
 	}
