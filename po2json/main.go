@@ -93,11 +93,10 @@ func main() {
 				Die(filename, "does not exist.")
 			}
 
-			dict, err := pofile.ParseFile(filename)
+			err := mainDict.MergeFile(filename)
 			if err != nil {
 				Die("PO File Parsing Error", err)
 			}
-			mainDict.Merge(dict)
 		}
 		fmt.Println(mainDict.JSONString())
 	}
