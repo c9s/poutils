@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/c9s/poutil"
 	"github.com/c9s/poutil/pofile"
 	"io/ioutil"
 	"os"
@@ -54,27 +55,19 @@ func main() {
 		var domain = *domainOpt
 		var localeDir = *localeOpt
 		var jsonDir = *jsonDirOpt
-		var langs = []string{}
-		fileInfos, err := ioutil.ReadDir(localeDir)
 
+		langs, err := poutil.GetLocaleLanguages(localeDir)
 		if err != nil {
-			fmt.Println("Can not read:", localeDir)
+			fmt.Println(err)
 			os.Exit(1)
-		}
-
-		// get languages
-		for _, fi := range fileInfos {
-			if fi.IsDir() {
-				langs = append(langs, fi.Name())
-			}
 		}
 
 		os.MkdirAll(jsonDir, 0777)
 
 		var c = make(chan bool)
-		var routineCounter = len(langs)
+		var routineCounter = len(*langs)
 
-		for _, lang := range langs {
+		for _, lang := range *langs {
 			var poFile = path.Join(localeDir, lang, "LC_MESSAGES", domain) + ".po"
 			var jsonFile = path.Join(jsonDir, lang) + ".json"
 
