@@ -1,7 +1,6 @@
 package pofile
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"regexp"
 	"strings"
@@ -13,31 +12,7 @@ const (
 	STATE_COMPLETE        // complete state
 )
 
-type Dictionary map[string]string
-
-func (self Dictionary) AddMessage(msgId string, msgStr string) {
-	self[msgId] = msgStr
-}
-
-func (self Dictionary) HasMessage(msgId string) bool {
-	_, ok := self[msgId]
-	return ok
-}
-
-func (self Dictionary) RemoveMessage(msgId string) {
-	delete(self, msgId)
-}
-
-func (self Dictionary) JSONString() string {
-	jsonBytes, err := json.MarshalIndent(self, "", "  ")
-	if err != nil {
-		panic(err)
-	}
-	return string(jsonBytes)
-}
-
 func ParseContent(content string) (*Dictionary, error) {
-
 	lines := strings.Split(content, "\n")
 	lastMsgId := []string{}
 	lastMsgStr := []string{}
