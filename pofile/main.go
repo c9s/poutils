@@ -28,7 +28,7 @@ func (self Dictionary) RemoveMessage(msgId string) {
 	delete(self, msgId)
 }
 
-func (self Dictionary) String() string {
+func (self Dictionary) JSONString() string {
 	jsonBytes, err := json.MarshalIndent(self, "", "  ")
 	if err != nil {
 		panic(err)

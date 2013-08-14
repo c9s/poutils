@@ -28,7 +28,7 @@ func ConvertPoToJson(poFile, jsonFile string, c chan bool) bool {
 	}
 
 	fmt.Println("Writing JSON", jsonFile)
-	jsonOutput := dict.String()
+	jsonOutput := dict.JSONString()
 	err = ioutil.WriteFile(jsonFile, []byte(jsonOutput), 0666)
 	if err != nil {
 		fmt.Println("Can not write json file", jsonFile)
