@@ -19,6 +19,11 @@ func (self Dictionary) AddMessage(msgId string, msgStr string) {
 	self[msgId] = msgStr
 }
 
+func (self Dictionary) HasMessage(msgId string) bool {
+	_, ok := self[msgId]
+	return ok
+}
+
 func (self Dictionary) RemoveMessage(msgId string) {
 	delete(self, msgId)
 }
