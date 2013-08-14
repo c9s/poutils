@@ -70,3 +70,14 @@ func ParseFile(filename string) (*Dictionary, error) {
 	}
 	return ParseContent(string(bytes))
 }
+
+func ParseFiles(files []string) (*Dictionary, error) {
+	mainDict := NewDictionary()
+	for _, filename := range files {
+		err := mainDict.MergeFile(filename)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return mainDict, nil
+}
