@@ -30,3 +30,12 @@ func (self Dictionary) Merge(dict *Dictionary) {
 		self[key] = value
 	}
 }
+
+func (self Dictionary) MergeFile(filename string) error {
+	dict, err := ParseFile(filename)
+	if err != nil {
+		return err
+	}
+	self.Merge(dict)
+	return nil
+}
