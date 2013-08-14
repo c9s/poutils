@@ -5,6 +5,19 @@ import (
 	"path"
 )
 
+/*
+func ScanLocaleDirectory(localeDir string) {
+	langs, err := GetLocaleLanguages(localeDir)
+	if err != nil {
+		panic(err)
+	}
+	info := map[string]string{}
+	for _, lang := range *langs {
+		info[lang]
+	}
+}
+*/
+
 func GetLocaleLanguages(localeDir string) (*[]string, error) {
 	var langs = []string{}
 	fileInfos, err := ioutil.ReadDir(localeDir)
