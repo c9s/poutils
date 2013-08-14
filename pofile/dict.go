@@ -24,3 +24,9 @@ func (self Dictionary) JSONString() string {
 	}
 	return string(jsonBytes)
 }
+
+func (self Dictionary) Merge(dict *Dictionary) {
+	for key, value := range *dict {
+		self[key] = value
+	}
+}

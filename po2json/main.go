@@ -85,6 +85,9 @@ func main() {
 		fmt.Println("Done")
 	} else {
 		files := os.Args[1:]
+
+		mainDict := pofile.Dictionary{}
+
 		for _, filename := range files {
 			if !FileExists(filename) {
 				Die(filename, "does not exist.")
@@ -94,7 +97,8 @@ func main() {
 			if err != nil {
 				Die("PO File Parsing Error", err)
 			}
-			fmt.Println(dict)
+			mainDict.Merge(dict)
 		}
+		fmt.Println(mainDict.JSONString())
 	}
 }
