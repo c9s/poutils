@@ -59,9 +59,7 @@ func ParseContent(content string) (*Dictionary, error) {
 			}
 		}
 	}
-
 	return &dictionary, nil
-
 }
 
 func ParseFile(filename string) (*Dictionary, error) {

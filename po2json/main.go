@@ -84,16 +84,17 @@ func main() {
 		}
 		fmt.Println("Done")
 	} else {
-		filename := os.Args[1]
+		files := os.Args[1:]
+		for _, filename := range files {
+			if !FileExists(filename) {
+				Die(filename, "does not exist.")
+			}
 
-		if !FileExists(filename) {
-			Die(filename, "does not exist.")
+			dict, err := pofile.ParseFile(filename)
+			if err != nil {
+				Die("PO File Parsing Error", err)
+			}
+			fmt.Println(dict)
 		}
-
-		dict, err := pofile.ParseFile(filename)
-		if err != nil {
-			Die("PO File Parsing Error", err)
-		}
-		fmt.Println(dict)
 	}
 }
