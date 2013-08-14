@@ -76,6 +76,6 @@ func (self Dictionary) JSONString() string {
 	return string(jsonBytes)
 }
 
-func (self Dictinoary) String() string {
+func (self Dictionary) String() string {
 	return self.JSONString()
 }

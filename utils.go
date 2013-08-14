@@ -1,6 +1,9 @@
 package poutil
 
-import "io/ioutil"
+import (
+	"io/ioutil"
+	"path"
+)
 
 func GetLocaleLanguages(localeDir string) (*[]string, error) {
 	var langs = []string{}
@@ -14,4 +17,8 @@ func GetLocaleLanguages(localeDir string) (*[]string, error) {
 		}
 	}
 	return &langs, nil
+}
+
+func BuildLCMessageFilePath(localeDir, lang, domain string) string {
+	return path.Join(localeDir, lang, "LC_MESSAGES", domain) + ".po"
 }

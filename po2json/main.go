@@ -26,7 +26,7 @@ func Die(args ...interface{}) {
 	os.Exit(1)
 }
 
-func ConvertPoToJson(poFile, jsonFile string, c chan bool) bool {
+func ParallelConvertPoFileToJsonFile(poFile, jsonFile string, c chan bool) bool {
 	dict, err := pofile.ParseFile(poFile)
 	if err != nil {
 		Die(err)
@@ -70,12 +70,12 @@ func main() {
 		var routineCounter = len(*langs)
 
 		for _, lang := range *langs {
-			var poFile = path.Join(localeDir, lang, "LC_MESSAGES", domain) + ".po"
+			var poFile = poutil.BuildLCMessageFilePath(localeDir, lang, domain)
 			var jsonFile = path.Join(jsonDir, lang) + ".json"
 
 			if FileExists(poFile) {
 				fmt.Println("Start Processing", poFile)
-				go ConvertPoToJson(poFile, jsonFile, c)
+				go ParallelConvertPoFileToJsonFile(poFile, jsonFile, c)
 			}
 		}
 		for routineCounter > 0 {
