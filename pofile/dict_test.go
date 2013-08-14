@@ -20,9 +20,15 @@ func TestDictionary(t *testing.T) {
 		t.Fatal("msgid not found")
 	}
 	dict.RemoveMessage("en")
+	dict.AddMessage("zh_TW", "繁體中文")
 
 	json := dict.JSONString()
+	t.Log(json)
 	if json == "" {
 		t.Fatal("Can not encoding json")
 	}
+
+	csv := dict.CSVString()
+	t.Log(csv)
+	_ = csv
 }

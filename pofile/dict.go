@@ -1,6 +1,11 @@
 package pofile
 
 import "encoding/json"
+import "encoding/csv"
+
+// import "fmt"
+// import "bufio"
+import "bytes"
 
 type Dictionary map[string]string
 
@@ -17,14 +22,6 @@ func (self Dictionary) RemoveMessage(msgId string) {
 	delete(self, msgId)
 }
 
-func (self Dictionary) JSONString() string {
-	jsonBytes, err := json.MarshalIndent(self, "", "  ")
-	if err != nil {
-		panic(err)
-	}
-	return string(jsonBytes)
-}
-
 func (self Dictionary) Merge(dict *Dictionary) {
 	for key, value := range *dict {
 		self[key] = value
@@ -38,4 +35,22 @@ func (self Dictionary) MergeFile(filename string) error {
 	}
 	self.Merge(dict)
 	return nil
+}
+
+func (self Dictionary) CSVString() string {
+	var buf = bytes.NewBufferString("")
+	var writer = csv.NewWriter(buf)
+	for key, val := range self {
+		writer.Write([]string{key, val})
+	}
+	writer.Flush()
+	return buf.String()
+}
+
+func (self Dictionary) JSONString() string {
+	jsonBytes, err := json.MarshalIndent(self, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	return string(jsonBytes)
 }
