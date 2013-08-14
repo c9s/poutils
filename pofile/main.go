@@ -70,5 +70,5 @@ func ParseFile(filename string) (*Dictionary, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ParseContent(string(bytes), "\n")
+	return ParseContent(string(bytes))
 }
