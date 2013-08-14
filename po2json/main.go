@@ -86,7 +86,7 @@ func main() {
 	} else {
 		files := os.Args[1:]
 
-		mainDict := pofile.Dictionary{}
+		mainDict := pofile.NewDictionary()
 
 		for _, filename := range files {
 			if !FileExists(filename) {
