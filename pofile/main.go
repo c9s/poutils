@@ -36,15 +36,9 @@ func (self Dictionary) JSONString() string {
 	return string(jsonBytes)
 }
 
-func ParseFile(filename string) (*Dictionary, error) {
+func ParseContent(content string) (*Dictionary, error) {
 
-	// process(filename)
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	lines := strings.Split(string(bytes), "\n")
-
+	lines := strings.Split(content, "\n")
 	lastMsgId := []string{}
 	lastMsgStr := []string{}
 
@@ -92,4 +86,14 @@ func ParseFile(filename string) (*Dictionary, error) {
 	}
 
 	return &dictionary, nil
+
+}
+
+func ParseFile(filename string) (*Dictionary, error) {
+	// process(filename)
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	return ParseContent(string(bytes), "\n")
 }
