@@ -16,7 +16,7 @@ func ParseContent(content string) (*Dictionary, error) {
 	lines := strings.Split(content, "\n")
 	lastMsgId := []string{}
 	lastMsgStr := []string{}
-	lastComments = []string{}
+	lastComments := []string{}
 
 	dictionary := Dictionary{}
 
