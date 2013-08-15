@@ -1,11 +1,14 @@
 package pofile
 
-import "encoding/json"
-import "encoding/csv"
+import (
+	"bytes"
+	"encoding/csv"
+	"encoding/json"
+	"io/ioutil"
+)
 
 // import "fmt"
 // import "bufio"
-import "bytes"
 
 /*
 
@@ -78,4 +81,14 @@ func (self Dictionary) JSONString() string {
 
 func (self Dictionary) String() string {
 	return self.JSONString()
+}
+
+func (self Dictionary) WriteJSONFile(filepath string) error {
+	var output = self.JSONString()
+	return ioutil.WriteFile(filepath, []byte(output), 0666)
+}
+
+func (self Dictionary) WriteCSVFile(filepath string) error {
+	var output = self.CSVString()
+	return ioutil.WriteFile(filepath, []byte(output), 0666)
 }
