@@ -16,6 +16,7 @@ func ParseContent(content string) (*Dictionary, error) {
 	lines := strings.Split(content, "\n")
 	lastMsgId := []string{}
 	lastMsgStr := []string{}
+	lastComments = []string{}
 
 	dictionary := Dictionary{}
 
@@ -28,9 +29,13 @@ func ParseContent(content string) (*Dictionary, error) {
 	stringRegExp := regexp.MustCompile("\"(.*)\"")
 
 	for _, line := range lines {
-		if len(line) == 0 || line[0] == '#' ||
-			commentRegExp.MatchString(line) ||
-			emptyLineRegExp.MatchString(line) {
+		if len(line) == 0 || emptyLineRegExp.MatchString(line) { // skip empty lines
+			continue
+		}
+
+		if line[0] == '#' ||
+			commentRegExp.MatchString(line) {
+			lastComments = append(lastComments, line)
 			continue
 		}
 
@@ -40,6 +45,7 @@ func ParseContent(content string) (*Dictionary, error) {
 				dictionary.AddMessage(strings.Join(lastMsgId, ""), strings.Join(lastMsgStr, ""))
 				lastMsgId = []string{}
 				lastMsgStr = []string{}
+				lastComments = []string{}
 			}
 
 			state = STATE_MSGID

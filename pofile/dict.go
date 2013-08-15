@@ -12,7 +12,7 @@ import (
 
 /*
 
-To create a empty dictinoary:
+To create a empty dictionary:
 
 	dict := pofile.NewDictionary()
 	dict := pofile.Dictionary{}
@@ -26,6 +26,26 @@ To remove message:
 	dict.RemoveMessage(msgId)
 
 */
+
+type POFile struct {
+	// read-only dictionary
+	Dictionary Dictionary
+	Messages   []Message
+}
+
+func (self *POFile) ParseFile(file string) {
+
+}
+
+type Message struct {
+	MsgId     string
+	MsgString string
+	Comments  []string
+}
+
+func (self Message) AppendComment(comment string) {
+	self.Comments = append(self.Comments, comment)
+}
 
 type Dictionary map[string]string
 
