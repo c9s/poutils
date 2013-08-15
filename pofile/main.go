@@ -7,12 +7,19 @@ import (
 )
 
 const (
-	STATE_MSGID    = iota // waiting for msgid
-	STATE_MSGSTR          // waiting for msgstr
-	STATE_COMPLETE        // complete state
+	STATE_COMMENT  = iota
+	STATE_MSGID    // waiting for msgid
+	STATE_MSGSTR   // waiting for msgstr
+	STATE_COMPLETE // complete state, waiting for comment or msgid
 )
 
-func ParseContent(content string) (*Dictionary, error) {
+var commentRegExp = regexp.MustCompile("^\\s*#")
+var emptyLineRegExp = regexp.MustCompile("^\\s*$")
+var msgIdRegExp = regexp.MustCompile("^msgid\\s+\"(.*)\"")
+var msgStrRegExp = regexp.MustCompile("^msgstr\\s+\"(.*)\"")
+var stringRegExp = regexp.MustCompile("\"(.*)\"")
+
+func ParseMessages(content string) (*Dictionary, error) {
 	lines := strings.Split(content, "\n")
 	lastMsgId := []string{}
 	lastMsgStr := []string{}
@@ -20,33 +27,27 @@ func ParseContent(content string) (*Dictionary, error) {
 
 	dictionary := Dictionary{}
 
-	state := STATE_MSGID
-
-	commentRegExp := regexp.MustCompile("^\\s*#")
-	emptyLineRegExp := regexp.MustCompile("^\\s*$")
-	msgIdRegExp := regexp.MustCompile("^msgid\\s+\"(.*)\"")
-	msgStrRegExp := regexp.MustCompile("^msgstr\\s+\"(.*)\"")
-	stringRegExp := regexp.MustCompile("\"(.*)\"")
+	state := STATE_COMPLETE
 
 	for _, line := range lines {
 		if len(line) == 0 || emptyLineRegExp.MatchString(line) { // skip empty lines
-			continue
-		}
-
-		if line[0] == '#' ||
-			commentRegExp.MatchString(line) {
-			lastComments = append(lastComments, line)
-			continue
-		}
-
-		if strings.HasPrefix(line, "msgid") || msgIdRegExp.MatchString(line) {
-			if len(lastMsgId) > 0 && len(lastMsgStr) > 0 {
-				// push to the dictionary
+			if state == STATE_MSGSTR {
 				dictionary.AddMessage(strings.Join(lastMsgId, ""), strings.Join(lastMsgStr, ""))
 				lastMsgId = []string{}
 				lastMsgStr = []string{}
 				lastComments = []string{}
+				state = STATE_COMPLETE
 			}
+			continue
+		}
+
+		if line[0] == '#' || commentRegExp.MatchString(line) {
+			lastComments = append(lastComments, line)
+			state = STATE_COMMENT
+			continue
+		}
+
+		if strings.HasPrefix(line, "msgid") || msgIdRegExp.MatchString(line) {
 
 			state = STATE_MSGID
 			msgId := msgIdRegExp.FindStringSubmatch(line)[1]
@@ -74,7 +75,7 @@ func ParseFile(filename string) (*Dictionary, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ParseContent(string(bytes))
+	return ParseMessages(string(bytes))
 }
 
 func ParseFiles(files []string) (*Dictionary, error) {

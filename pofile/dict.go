@@ -27,26 +27,6 @@ To remove message:
 
 */
 
-type POFile struct {
-	// read-only dictionary
-	Dictionary Dictionary
-	Messages   []Message
-}
-
-func (self *POFile) ParseFile(file string) {
-
-}
-
-type Message struct {
-	MsgId     string
-	MsgString string
-	Comments  []string
-}
-
-func (self Message) AppendComment(comment string) {
-	self.Comments = append(self.Comments, comment)
-}
-
 type Dictionary map[string]string
 
 func NewDictionary() *Dictionary {
