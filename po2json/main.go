@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/c9s/poutil"
 	"github.com/c9s/poutil/pofile"
-	"io/ioutil"
 	"os"
 	"path"
 )
@@ -33,9 +32,7 @@ func ParallelConvertPoFileToJsonFile(poFile, jsonFile string, c chan bool) bool 
 	}
 
 	fmt.Println("Writing JSON", jsonFile)
-	jsonOutput := dict.JSONString()
-	err = ioutil.WriteFile(jsonFile, []byte(jsonOutput), 0666)
-	if err != nil {
+	if err = dict.WriteJSONFile(jsonFile); err != nil {
 		Die("Can not write json file", jsonFile)
 	}
 	c <- true
