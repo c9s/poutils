@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/c9s/poutil"
 	"github.com/c9s/poutil/pofile"
-	"io/ioutil"
 	"os"
 	"path"
 )
@@ -82,16 +81,14 @@ func main() {
 		fmt.Println("Done")
 	} else {
 		files := os.Args[1:]
-
 		mainDict := pofile.NewDictionary()
 
-		for _, filename := range files {
-			if !FileExists(filename) {
-				Die(filename, "does not exist.")
+		for _, file := range files {
+			if !FileExists(file) {
+				Die(file, "does not exist.")
 			}
 
-			err := mainDict.MergeFile(filename)
-			if err != nil {
+			if err := mainDict.MergeFile(file); err != nil {
 				Die("PO File Parsing Error", err)
 			}
 		}

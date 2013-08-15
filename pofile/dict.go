@@ -30,7 +30,7 @@ To remove message:
 type Dictionary map[string]string
 
 func NewDictionary() *Dictionary {
-	return new(Dictionary)
+	return &Dictionary{}
 }
 
 func (self Dictionary) AddMessage(msgId string, msgStr string) {
@@ -47,17 +47,17 @@ func (self Dictionary) RemoveMessage(msgId string) {
 }
 
 func (self Dictionary) Merge(dict *Dictionary) {
-	for key, value := range *dict {
-		self[key] = value
+	for key, val := range *dict {
+		self[key] = val
 	}
 }
 
 func (self Dictionary) MergeFile(filename string) error {
-	dict, err := ParseFile(filename)
+	newDict, err := ParseFile(filename)
 	if err != nil {
 		return err
 	}
-	self.Merge(dict)
+	self.Merge(newDict)
 	return nil
 }
 
