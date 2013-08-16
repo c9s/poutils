@@ -27,6 +27,11 @@ To remove message:
 	dict.RemoveMessage(msgId)
 
 */
+var CommentRegExp = regexp.MustCompile("^\\s*#")
+var EmptyLineRegExp = regexp.MustCompile("^\\s*$")
+var MsgIdRegExp = regexp.MustCompile("^msgid\\s+\"(.*)\"")
+var MsgStrRegExp = regexp.MustCompile("^msgstr\\s+\"(.*)\"")
+var StringRegExp = regexp.MustCompile("\"(.*)\"")
 
 type Dictionary map[string]string
 
@@ -60,40 +65,37 @@ func (self Dictionary) ParseAndLoad(content string) error {
 	lines := strings.Split(content, "\n")
 	lastMsgId := []string{}
 	lastMsgStr := []string{}
-	lastComments := []string{}
 
 	state := STATE_COMPLETE
 
 	for _, line := range lines {
-		if len(line) == 0 || emptyLineRegExp.MatchString(line) { // skip empty lines
+		if len(line) == 0 || EmptyLineRegExp.MatchString(line) { // skip empty lines
 			if state == STATE_MSGSTR {
 				self.AddMessage(strings.Join(lastMsgId, ""), strings.Join(lastMsgStr, ""))
 				lastMsgId = []string{}
 				lastMsgStr = []string{}
-				lastComments = []string{}
 				state = STATE_COMPLETE
 			}
 			continue
 		}
 
-		if line[0] == '#' || commentRegExp.MatchString(line) {
-			lastComments = append(lastComments, line)
+		if line[0] == '#' || CommentRegExp.MatchString(line) {
 			state = STATE_COMMENT
 			continue
 		}
 
-		if strings.HasPrefix(line, "msgid") || msgIdRegExp.MatchString(line) {
+		if strings.HasPrefix(line, "msgid") || MsgIdRegExp.MatchString(line) {
 
 			state = STATE_MSGID
-			msgId := msgIdRegExp.FindStringSubmatch(line)[1]
+			msgId := MsgIdRegExp.FindStringSubmatch(line)[1]
 			lastMsgId = append(lastMsgId, msgId)
 
-		} else if strings.HasPrefix(line, "msgstr") || msgStrRegExp.MatchString(line) {
+		} else if strings.HasPrefix(line, "msgstr") || MsgStrRegExp.MatchString(line) {
 			state = STATE_MSGSTR
-			msgStr := msgStrRegExp.FindStringSubmatch(line)[1]
+			msgStr := MsgStrRegExp.FindStringSubmatch(line)[1]
 			lastMsgStr = append(lastMsgStr, msgStr)
-		} else if stringRegExp.MatchString(line) {
-			var str = stringRegExp.FindStringSubmatch(line)[1]
+		} else if StringRegExp.MatchString(line) {
+			var str = StringRegExp.FindStringSubmatch(line)[1]
 			if state == STATE_MSGID {
 				lastMsgId = append(lastMsgId, str)
 			} else if state == STATE_MSGSTR {

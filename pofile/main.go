@@ -11,12 +11,6 @@ const (
 	STATE_COMPLETE // complete state, waiting for comment or msgid
 )
 
-var commentRegExp = regexp.MustCompile("^\\s*#")
-var emptyLineRegExp = regexp.MustCompile("^\\s*$")
-var msgIdRegExp = regexp.MustCompile("^msgid\\s+\"(.*)\"")
-var msgStrRegExp = regexp.MustCompile("^msgstr\\s+\"(.*)\"")
-var stringRegExp = regexp.MustCompile("\"(.*)\"")
-
 func ParseMessagesFromFile(filename string) (*Dictionary, error) {
 	dict := NewDictionary()
 	err := dict.ParseAndLoadFromFile(filename)
