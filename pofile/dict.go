@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"io/ioutil"
+	"strings"
 )
 
 // import "fmt"
@@ -46,6 +47,63 @@ func (self Dictionary) RemoveMessage(msgId string) {
 	delete(self, msgId)
 }
 
+func (self Dictionary) ParseAndLoadFromFile(filename string) error {
+	// process(filename)
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+	return self.ParseAndLoad(string(bytes))
+}
+
+func (self Dictionary) ParseAndLoad(content string) error {
+	lines := strings.Split(content, "\n")
+	lastMsgId := []string{}
+	lastMsgStr := []string{}
+	lastComments := []string{}
+
+	state := STATE_COMPLETE
+
+	for _, line := range lines {
+		if len(line) == 0 || emptyLineRegExp.MatchString(line) { // skip empty lines
+			if state == STATE_MSGSTR {
+				self.AddMessage(strings.Join(lastMsgId, ""), strings.Join(lastMsgStr, ""))
+				lastMsgId = []string{}
+				lastMsgStr = []string{}
+				lastComments = []string{}
+				state = STATE_COMPLETE
+			}
+			continue
+		}
+
+		if line[0] == '#' || commentRegExp.MatchString(line) {
+			lastComments = append(lastComments, line)
+			state = STATE_COMMENT
+			continue
+		}
+
+		if strings.HasPrefix(line, "msgid") || msgIdRegExp.MatchString(line) {
+
+			state = STATE_MSGID
+			msgId := msgIdRegExp.FindStringSubmatch(line)[1]
+			lastMsgId = append(lastMsgId, msgId)
+
+		} else if strings.HasPrefix(line, "msgstr") || msgStrRegExp.MatchString(line) {
+			state = STATE_MSGSTR
+			msgStr := msgStrRegExp.FindStringSubmatch(line)[1]
+			lastMsgStr = append(lastMsgStr, msgStr)
+		} else if stringRegExp.MatchString(line) {
+			var str = stringRegExp.FindStringSubmatch(line)[1]
+			if state == STATE_MSGID {
+				lastMsgId = append(lastMsgId, str)
+			} else if state == STATE_MSGSTR {
+				lastMsgStr = append(lastMsgStr, str)
+			}
+		}
+	}
+	return nil
+}
+
 func (self Dictionary) Merge(dict *Dictionary) {
 	for key, val := range *dict {
 		self[key] = val
@@ -53,8 +111,8 @@ func (self Dictionary) Merge(dict *Dictionary) {
 }
 
 func (self Dictionary) MergeFile(filename string) error {
-	newDict, err := ParseMessagesFromFile(filename)
-	if err != nil {
+	newDict := NewDictionary()
+	if err := newDict.ParseAndLoadFromFile(filename); err != nil {
 		return err
 	}
 	self.Merge(newDict)
