@@ -17,6 +17,12 @@ var msgIdRegExp = regexp.MustCompile("^msgid\\s+\"(.*)\"")
 var msgStrRegExp = regexp.MustCompile("^msgstr\\s+\"(.*)\"")
 var stringRegExp = regexp.MustCompile("\"(.*)\"")
 
+func ParseMessagesFromFile(filename string) (*Dictionary, error) {
+	dict := NewDictionary()
+	err := dict.ParseAndLoadFromFile(filename)
+	return dict, err
+}
+
 func ParseFiles(files []string) (*Dictionary, error) {
 	mainDict := NewDictionary()
 	for _, filename := range files {
