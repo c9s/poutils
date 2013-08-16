@@ -1,9 +1,5 @@
 package pofile
 
-import (
-	"regexp"
-)
-
 const (
 	STATE_COMMENT  = iota
 	STATE_MSGID    // waiting for msgid

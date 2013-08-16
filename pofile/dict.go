@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"io/ioutil"
+	"regexp"
 	"strings"
 )
 
