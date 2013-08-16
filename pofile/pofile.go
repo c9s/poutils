@@ -8,17 +8,7 @@ import (
 type POFile struct {
 	// read-only dictionary
 	Dictionary Dictionary
-	Messages   []Message
-}
-
-type Message struct {
-	MsgId     string
-	MsgString string
-	Comments  []string
-}
-
-func (self Message) AppendComment(comment string) {
-	self.Comments = append(self.Comments, comment)
+	Comments   map[string]string
 }
 
 func (self *POFile) ParseFile(file string) error {
@@ -36,14 +26,18 @@ func (self POFile) ParseAndLoad(content string) error {
 	lastMsgStr := []string{}
 	lastComments := []string{}
 
-	dict := NewDictionary()
-
 	state := STATE_COMPLETE
 
 	for _, line := range lines {
 		if len(line) == 0 || EmptyLineRegExp.MatchString(line) { // skip empty lines
 			if state == STATE_MSGSTR {
-				dict.AddMessage(strings.Join(lastMsgId, ""), strings.Join(lastMsgStr, ""))
+				msgId := strings.Join(lastMsgId, "")
+
+				// map assignment is faster.
+				self.Dictionary[msgId] = strings.Join(lastMsgStr, "")
+				self.Comments[msgId] = strings.Join(lastComments, "")
+
+				// reset all stacks
 				lastMsgId = []string{}
 				lastMsgStr = []string{}
 				lastComments = []string{}
