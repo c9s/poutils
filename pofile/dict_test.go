@@ -32,3 +32,18 @@ func TestDictionary(t *testing.T) {
 	t.Log(csv)
 	_ = csv
 }
+
+func TestLoadCSVFile(t *testing.T) {
+	dict := NewDictionary()
+	if err := dict.LoadCSVFile("data/en.csv"); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadJSONFile(t *testing.T) {
+	dict := NewDictionary()
+	if err := dict.LoadJSONFile("data/en.json"); err != nil {
+		t.Fatal(err)
+	}
+	// t.Log(dict)
+}

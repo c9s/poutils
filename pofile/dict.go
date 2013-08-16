@@ -155,3 +155,42 @@ func (self Dictionary) WriteCSVFile(filepath string) error {
 	var output = self.CSVString()
 	return ioutil.WriteFile(filepath, []byte(output), 0666)
 }
+
+func (self Dictionary) LoadJSONString(content string) error {
+	return self.LoadJSON([]byte(content))
+}
+
+func (self Dictionary) LoadCSVString(content string) error {
+	return self.LoadCSV([]byte(content))
+}
+
+func (self Dictionary) LoadCSV(b []byte) error {
+	var buf = bytes.NewBuffer(b)
+	var reader = csv.NewReader(buf)
+	items, err := reader.ReadAll()
+	items = items[1:] // truncate first row
+	for _, item := range items {
+		self.AddMessage(item[0], item[1])
+	}
+	return err
+}
+
+func (self Dictionary) LoadJSON(b []byte) error {
+	return json.Unmarshal(b, &self)
+}
+
+func (self Dictionary) LoadCSVFile(file string) error {
+	bytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+	return self.LoadCSV(bytes)
+}
+
+func (self Dictionary) LoadJSONFile(file string) error {
+	bytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+	return self.LoadJSON(bytes)
+}
