@@ -8,6 +8,7 @@ import (
 
 type POFile struct {
 	Messages []Message
+	IdMap    map[string]bool
 }
 
 /*
@@ -24,7 +25,7 @@ type Message struct {
 }
 
 func NewPOFile() *POFile {
-	return &POFile{Messages: []Message{}}
+	return &POFile{Messages: []Message{}, IdMap: map[string]bool{}}
 }
 
 func (self *POFile) LoadFile(file string) error {
@@ -64,6 +65,20 @@ func (self *POFile) WriteFile(filename string) error {
 	return ioutil.WriteFile(filename, []byte(output), 0666)
 }
 
+func (self *POFile) ImportDictionary(dict *Dictionary, override bool) {
+	for msgId, msgStr := range *dict {
+		if _, ok := self.IdMap[msgId]; ok && !override {
+			continue
+		}
+		self.IdMap[msgId] = true
+		self.Messages = append(self.Messages, Message{
+			MsgIds:   []string{msgId},
+			MsgStrs:  []string{msgStr},
+			Comments: []string{},
+		})
+	}
+}
+
 func (self *POFile) ParseAndLoad(content string) error {
 	lines := strings.Split(content, "\n")
 	ids := []string{}
@@ -75,9 +90,15 @@ func (self *POFile) ParseAndLoad(content string) error {
 	for linenr, line := range lines {
 		if len(line) == 0 || EmptyLineRegExp.MatchString(line) { // skip empty lines
 			if state == STATE_MSGSTR {
-				newmsg := Message{MsgIds: ids, MsgStrs: strs, Comments: comments}
+				var msgid = strings.Join(ids, "")
 
-				self.Messages = append(self.Messages, newmsg)
+				if _, ok := self.IdMap[msgid]; ok {
+					fmt.Println("Duplicate message", msgid)
+					continue
+				}
+
+				self.IdMap[msgid] = true
+				self.Messages = append(self.Messages, Message{MsgIds: ids, MsgStrs: strs, Comments: comments})
 
 				// reset all stacks
 				ids = []string{}
