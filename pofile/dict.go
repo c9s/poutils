@@ -53,7 +53,7 @@ func (self Dictionary) Merge(dict *Dictionary) {
 }
 
 func (self Dictionary) MergeFile(filename string) error {
-	newDict, err := ParseFile(filename)
+	newDict, err := ParseMessagesFromFile(filename)
 	if err != nil {
 		return err
 	}

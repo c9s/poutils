@@ -69,7 +69,7 @@ func ParseMessages(content string) (*Dictionary, error) {
 	return &dictionary, nil
 }
 
-func ParseFile(filename string) (*Dictionary, error) {
+func ParseMessagesFromFile(filename string) (*Dictionary, error) {
 	// process(filename)
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {

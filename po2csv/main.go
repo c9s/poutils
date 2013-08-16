@@ -26,7 +26,7 @@ func Die(args ...interface{}) {
 }
 
 func ParallelConvertPoFileToCSVFile(poFile, csvFile string, c chan bool) bool {
-	dict, err := pofile.ParseFile(poFile)
+	dict, err := pofile.ParseMessagesFromFile(poFile)
 	if err != nil {
 		Die(err)
 	}
