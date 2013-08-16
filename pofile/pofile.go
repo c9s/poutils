@@ -11,13 +11,20 @@ type POFile struct {
 	Comments   map[string]string
 }
 
-func (self *POFile) ParseFile(file string) error {
+func NewPOFile() *POFile {
+	return &POFile{Dictionary: Dictionary{}, Comments: map[string]string{}}
+}
+
+func (self POFile) LoadFile(file string) error {
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return err
 	}
-	_ = bytes
-	return nil
+	return self.ParseAndLoad(string(bytes))
+}
+
+func (self POFile) Length() int {
+	return len(self.Dictionary)
 }
 
 func (self POFile) ParseAndLoad(content string) error {
