@@ -122,6 +122,8 @@ func (self Dictionary) MergeFile(filename string) error {
 func (self Dictionary) CSVString() string {
 	var buf = bytes.NewBufferString("")
 	var writer = csv.NewWriter(buf)
+
+	writer.Write([]string{"MessageID", "MessageString"})
 	for key, val := range self {
 		writer.Write([]string{key, val})
 	}
