@@ -1,21 +1,33 @@
 package pofile
 
 import (
+	"fmt"
 	"io/ioutil"
 	"strings"
 )
 
 type POFile struct {
-	// read-only dictionary
-	Dictionary Dictionary
-	Comments   map[string]string
+	Messages []Message
+}
+
+/*
+func (self POFile) AddMessage(ids, strs, comments []string) {
+	msg := Message{MsgIds: ids, MsgStrs: strs, Comments: comments}
+	self.Messages = append(self.Messages, msg)
+}
+*/
+
+type Message struct {
+	MsgIds   []string
+	MsgStrs  []string
+	Comments []string
 }
 
 func NewPOFile() *POFile {
-	return &POFile{Dictionary: Dictionary{}, Comments: map[string]string{}}
+	return &POFile{Messages: []Message{}}
 }
 
-func (self POFile) LoadFile(file string) error {
+func (self *POFile) LoadFile(file string) error {
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return err
@@ -23,58 +35,89 @@ func (self POFile) LoadFile(file string) error {
 	return self.ParseAndLoad(string(bytes))
 }
 
-func (self POFile) Length() int {
-	return len(self.Dictionary)
+func (self *POFile) Length() int {
+	return len(self.Messages)
 }
 
-func (self POFile) ParseAndLoad(content string) error {
+func (self *POFile) String() string {
+	var output string = ""
+	for _, msg := range self.Messages {
+
+		output += strings.Join(msg.Comments, "\n") + "\n"
+
+		output += "msgid "
+		for _, str := range msg.MsgIds {
+			output += "\"" + str + "\"\n"
+		}
+
+		output += "msgstr "
+		for _, str := range msg.MsgStrs {
+			output += "\"" + str + "\"\n"
+		}
+		output += "\n"
+	}
+	return output
+}
+
+func (self *POFile) WriteFile(filename string) error {
+	output := self.String()
+	return ioutil.WriteFile(filename, []byte(output), 0666)
+}
+
+func (self *POFile) ParseAndLoad(content string) error {
 	lines := strings.Split(content, "\n")
-	lastMsgId := []string{}
-	lastMsgStr := []string{}
-	lastComments := []string{}
+	ids := []string{}
+	strs := []string{}
+	comments := []string{}
 
 	state := STATE_COMPLETE
 
-	for _, line := range lines {
+	for linenr, line := range lines {
 		if len(line) == 0 || EmptyLineRegExp.MatchString(line) { // skip empty lines
 			if state == STATE_MSGSTR {
-				msgId := strings.Join(lastMsgId, "")
+				newmsg := Message{MsgIds: ids, MsgStrs: strs, Comments: comments}
 
-				// map assignment is faster.
-				self.Dictionary[msgId] = strings.Join(lastMsgStr, "")
-				self.Comments[msgId] = strings.Join(lastComments, "")
+				self.Messages = append(self.Messages, newmsg)
 
 				// reset all stacks
-				lastMsgId = []string{}
-				lastMsgStr = []string{}
-				lastComments = []string{}
+				ids = []string{}
+				strs = []string{}
+				comments = []string{}
 				state = STATE_COMPLETE
 			}
 			continue
 		}
 
 		if line[0] == '#' || CommentRegExp.MatchString(line) {
-			lastComments = append(lastComments, line)
+			comments = append(comments, line)
 			state = STATE_COMMENT
 			continue
 		}
 
 		if strings.HasPrefix(line, "msgid") || MsgIdRegExp.MatchString(line) {
+			if state == STATE_MSGID {
+				panic(fmt.Sprintf("Duplicate msgid statement at line %d", linenr))
+			}
 
 			state = STATE_MSGID
 			msgId := MsgIdRegExp.FindStringSubmatch(line)[1]
-			lastMsgId = append(lastMsgId, msgId)
+			ids = append(ids, msgId)
 
 		} else if strings.HasPrefix(line, "msgstr") || MsgStrRegExp.MatchString(line) {
+
+			if state == STATE_MSGSTR {
+				panic(fmt.Sprintf("Duplicate msgstr statement at line %d", linenr))
+			}
+
 			state = STATE_MSGSTR
 			msgStr := MsgStrRegExp.FindStringSubmatch(line)[1]
-			lastMsgStr = append(lastMsgStr, msgStr)
+			strs = append(strs, msgStr)
 		} else if StringRegExp.MatchString(line) {
 			var str = StringRegExp.FindStringSubmatch(line)[1]
 			if state == STATE_MSGID {
-				lastMsgId = append(lastMsgId, str)
+				ids = append(ids, str)
 			} else if state == STATE_MSGSTR {
-				lastMsgStr = append(lastMsgStr, str)
+				strs = append(strs, str)
 			}
 		}
 	}
