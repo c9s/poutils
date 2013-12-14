@@ -40,19 +40,31 @@ func NewDictionary() *Dictionary {
 	return &Dictionary{}
 }
 
+/*
+Add a message with a message id
+*/
 func (self Dictionary) AddMessage(msgId string, msgStr string) {
 	self[msgId] = msgStr
 }
 
+/*
+Check if a message is defined.
+*/
 func (self Dictionary) HasMessage(msgId string) bool {
 	_, ok := self[msgId]
 	return ok
 }
 
+/*
+Remove a message by a message id from the dictionary.
+*/
 func (self Dictionary) RemoveMessage(msgId string) {
 	delete(self, msgId)
 }
 
+/*
+Parse po file and load the messages into current object.
+*/
 func (self Dictionary) ParseAndLoadFromFile(filename string) error {
 	// process(filename)
 	bytes, err := ioutil.ReadFile(filename)

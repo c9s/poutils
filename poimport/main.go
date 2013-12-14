@@ -9,6 +9,9 @@ import (
 )
 
 /*
+poimport imports messages from csv/json to an existing po file.
+
+
 poimport --csv file.csv --to locale/en/LC_MESSAGES/jifty.po
 poimport --json file.json --to locale/en/LC_MESSAGES/jifty.po
 */

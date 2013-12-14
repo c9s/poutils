@@ -6,28 +6,36 @@ import (
 	"strings"
 )
 
+/*
+A po file contains multiple messages
+*/
 type POFile struct {
+	// A po file contains multiple messages
 	Messages []Message
-	IdMap    map[string]bool
+
+	// an ID map for checking message existence.
+	IdMap map[string]bool
 }
 
 /*
-func (self POFile) AddMessage(ids, strs, comments []string) {
-	msg := Message{MsgIds: ids, MsgStrs: strs, Comments: comments}
-	self.Messages = append(self.Messages, msg)
-}
+A message struct contains multiple lines of MsgId, MsgStr and comment.
 */
-
 type Message struct {
 	MsgIds   []string
 	MsgStrs  []string
 	Comments []string
 }
 
+/*
+create a new POFile object with empty message, empty id map
+*/
 func NewPOFile() *POFile {
 	return &POFile{Messages: []Message{}, IdMap: map[string]bool{}}
 }
 
+/*
+Load message from a po file
+*/
 func (self *POFile) LoadFile(file string) error {
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -36,10 +44,16 @@ func (self *POFile) LoadFile(file string) error {
 	return self.ParseAndLoad(string(bytes))
 }
 
+/*
+Get the count of messages
+*/
 func (self *POFile) Length() int {
 	return len(self.Messages)
 }
 
+/*
+Output the message to a string, supports Stringer interface.
+*/
 func (self *POFile) String() string {
 	var output string = ""
 	for _, msg := range self.Messages {
@@ -60,11 +74,17 @@ func (self *POFile) String() string {
 	return output
 }
 
+/*
+Write current POFile struct to a file.
+*/
 func (self *POFile) WriteFile(filename string) error {
 	output := self.String()
 	return ioutil.WriteFile(filename, []byte(output), 0666)
 }
 
+/*
+Import a dictionary structure (map[string]string) to the current POFile object.
+*/
 func (self *POFile) ImportDictionary(dict *Dictionary, override bool) {
 	for msgId, msgStr := range *dict {
 		if _, ok := self.IdMap[msgId]; ok && !override {
@@ -79,6 +99,9 @@ func (self *POFile) ImportDictionary(dict *Dictionary, override bool) {
 	}
 }
 
+/*
+Parse & load by givn po message content
+*/
 func (self *POFile) ParseAndLoad(content string) error {
 	lines := strings.Split(content, "\n")
 	ids := []string{}
